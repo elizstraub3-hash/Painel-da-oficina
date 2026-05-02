@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OficinaMax - Painel Administrativo</title>
+    <title>OficinaMax - Painel</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -28,454 +28,177 @@
             --sw:           260px;
         }
 
-        body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            line-height: 1.5;
-            overflow-x: hidden;
-        }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; overflow-x: hidden; }
+        .app { display: flex; height: 100vh; overflow: hidden; }
 
-        .app {
-            display: flex;
-            height: 100vh;
-            overflow: hidden;
-        }
-
-        /* ===== OVERLAY mobile ===== */
-        .overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.5);
-            z-index: 150;
-        }
+        .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 150; }
         .overlay.active { display: block; }
 
-        /* ===== SIDEBAR ===== */
-        .sidebar {
-            width: var(--sw);
-            flex-shrink: 0;
-            background: var(--black);
-            color: var(--white);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            transition: width 0.25s ease;
-            z-index: 200;
-        }
-
+        /* SIDEBAR */
+        .sidebar { width: var(--sw); flex-shrink: 0; background: var(--black); color: var(--white); display: flex; flex-direction: column; overflow: hidden; transition: width 0.25s ease; z-index: 200; }
         .sidebar.collapsed { width: 0; }
+        .sidebar-inner { width: var(--sw); min-width: var(--sw); display: flex; flex-direction: column; height: 100%; overflow-y: auto; }
+        .sidebar-header { padding: 18px 16px; border-bottom: 1px solid var(--black-border); display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-shrink: 0; }
+        .logo { display: flex; align-items: center; gap: 10px; font-size: 16px; font-weight: 700; color: var(--white); white-space: nowrap; }
+        .logo-icon { width: 30px; height: 30px; background: var(--blue); border-radius: 7px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .btn-close-sidebar { background: none; border: none; color: rgba(255,255,255,0.45); cursor: pointer; padding: 6px; border-radius: 6px; display: flex; align-items: center; transition: background .15s, color .15s; flex-shrink: 0; }
+        .btn-close-sidebar:hover { background: rgba(255,255,255,0.08); color: var(--white); }
+        .sidebar-nav { flex: 1; padding: 10px 8px; display: flex; flex-direction: column; gap: 2px; }
+        .nav-item { display: flex; align-items: center; gap: 11px; padding: 11px 13px; background: none; border: none; color: rgba(255,255,255,0.55); cursor: pointer; border-radius: 8px; transition: background .15s, color .15s; font-weight: 500; font-size: 14px; text-align: left; width: 100%; font-family: inherit; white-space: nowrap; }
+        .nav-item svg { width: 17px; height: 17px; stroke: currentColor; fill: none; flex-shrink: 0; }
+        .nav-item:hover { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.85); }
+        .nav-item.active { background: var(--blue); color: var(--white); }
+        .sidebar-footer { padding: 14px 16px; border-top: 1px solid var(--black-border); display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+        .user-avatar { width: 34px; height: 34px; border-radius: 8px; background: var(--blue); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 12px; color: var(--white); flex-shrink: 0; }
+        .user-name { font-weight: 600; font-size: 13px; color: var(--white); }
+        .user-role { font-size: 11px; color: rgba(255,255,255,0.45); }
 
-        .sidebar-inner {
-            width: var(--sw);
-            min-width: var(--sw);
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-            overflow-y: auto;
-        }
-
-        .sidebar-header {
-            padding: 18px 16px;
-            border-bottom: 1px solid var(--black-border);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 8px;
-            flex-shrink: 0;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 16px;
-            font-weight: 700;
-            color: var(--white);
-            letter-spacing: -0.3px;
-            white-space: nowrap;
-        }
-
-        .logo-icon {
-            width: 30px;
-            height: 30px;
-            background: var(--blue);
-            border-radius: 7px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-
-        .btn-close-sidebar {
-            background: none;
-            border: none;
-            color: rgba(255,255,255,0.45);
-            cursor: pointer;
-            padding: 6px;
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            transition: background 0.15s, color 0.15s;
-            flex-shrink: 0;
-        }
-        .btn-close-sidebar:hover {
-            background: rgba(255,255,255,0.08);
-            color: var(--white);
-        }
-
-        .sidebar-nav {
-            flex: 1;
-            padding: 10px 8px;
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-        }
-
-        .nav-item {
-            display: flex;
-            align-items: center;
-            gap: 11px;
-            padding: 11px 13px;
-            background: none;
-            border: none;
-            color: rgba(255,255,255,0.55);
-            cursor: pointer;
-            border-radius: 8px;
-            transition: background 0.15s, color 0.15s;
-            font-weight: 500;
-            font-size: 14px;
-            text-align: left;
-            width: 100%;
-            font-family: inherit;
-            white-space: nowrap;
-        }
-
-        .nav-item svg {
-            width: 17px;
-            height: 17px;
-            stroke: currentColor;
-            fill: none;
-            flex-shrink: 0;
-        }
-
-        .nav-item:hover {
-            background: rgba(255,255,255,0.07);
-            color: rgba(255,255,255,0.85);
-        }
-
-        .nav-item.active {
-            background: var(--blue);
-            color: var(--white);
-        }
-
-        .sidebar-footer {
-            padding: 14px 16px;
-            border-top: 1px solid var(--black-border);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex-shrink: 0;
-        }
-
-        .user-avatar {
-            width: 34px;
-            height: 34px;
-            border-radius: 8px;
-            background: var(--blue);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 12px;
-            color: var(--white);
-            flex-shrink: 0;
-        }
-
-        .user-name  { font-weight: 600; font-size: 13px; color: var(--white); white-space: nowrap; }
-        .user-role  { font-size: 11px; color: rgba(255,255,255,0.45); }
-
-        /* ===== MAIN CONTENT ===== */
-        .main-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            min-width: 0;
-        }
-
-        .top-bar {
-            background: var(--white);
-            border-bottom: 1px solid var(--border);
-            padding: 0 20px;
-            height: 56px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            flex-shrink: 0;
-        }
-
-        .btn-menu {
-            background: none;
-            border: none;
-            color: var(--text);
-            cursor: pointer;
-            padding: 7px;
-            border-radius: 7px;
-            display: flex;
-            align-items: center;
-            transition: background 0.15s;
-            flex-shrink: 0;
-        }
+        /* MAIN */
+        .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+        .top-bar { background: var(--white); border-bottom: 1px solid var(--border); padding: 0 20px; height: 56px; display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+        .btn-menu { background: none; border: none; color: var(--text); cursor: pointer; padding: 7px; border-radius: 7px; display: flex; align-items: center; transition: background .15s; flex-shrink: 0; }
         .btn-menu:hover { background: var(--bg); }
+        .top-bar h1 { font-size: 18px; font-weight: 700; color: var(--text); flex: 1; }
+        .page-content { flex: 1; overflow-y: auto; padding: 20px 24px; }
 
-        .top-bar h1 {
-            font-size: 18px;
-            font-weight: 700;
-            color: var(--text);
-            flex: 1;
-        }
-
-        .page-content {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px 24px;
-        }
-
-        /* ===== STATS ===== */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 14px;
-            margin-bottom: 16px;
-        }
-
-        .card {
-            background: var(--white);
-            border-radius: 10px;
-            padding: 18px;
-            border: 1px solid var(--border);
-        }
-
-        .stat-card {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-        }
-
-        .stat-label {
-            font-size: 11px;
-            font-weight: 600;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.6px;
-            margin-bottom: 8px;
-        }
-
-        .stat-value {
-            font-size: 26px;
-            font-weight: 700;
-            color: var(--text);
-            line-height: 1;
-            margin-bottom: 6px;
-        }
-
+        /* STATS */
+        .stats-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin-bottom: 16px; }
+        .card { background: var(--white); border-radius: 10px; padding: 18px; border: 1px solid var(--border); }
+        .stat-card { display: flex; justify-content: space-between; align-items: flex-start; }
+        .stat-label { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: .6px; margin-bottom: 8px; }
+        .stat-value { font-size: 26px; font-weight: 700; color: var(--text); line-height: 1; margin-bottom: 6px; }
         .stat-change { font-size: 12px; font-weight: 500; }
-        .stat-change.up   { color: var(--success); }
+        .stat-change.up { color: var(--success); }
         .stat-change.down { color: var(--danger); }
-
-        .stat-icon {
-            width: 42px;
-            height: 42px;
-            border-radius: 9px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
+        .stat-icon { width: 42px; height: 42px; border-radius: 9px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         .stat-icon svg { width: 20px; height: 20px; stroke: currentColor; fill: none; }
         .stat-icon.blue { background: var(--blue-pale); color: var(--blue-text); }
         .stat-icon.gray { background: #e5e7eb; color: #374151; }
 
-        /* ===== ALERT ===== */
-        .alert {
-            padding: 12px 14px;
-            border-radius: 8px;
-            margin-bottom: 16px;
-            display: flex;
-            gap: 10px;
-            align-items: flex-start;
-            font-size: 13px;
-        }
+        /* DASHBOARD ACTIONS */
+        .dash-actions { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
+        .btn-novo-servico { padding: 11px 20px; background: var(--blue); color: var(--white); border: none; border-radius: 9px; font-weight: 700; font-size: 15px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; font-family: inherit; transition: background .15s, box-shadow .15s; box-shadow: 0 2px 8px rgba(24,82,212,.25); }
+        .btn-novo-servico:hover { background: var(--blue-hover); box-shadow: 0 4px 16px rgba(24,82,212,.35); }
+        .btn-novo-servico svg { width: 18px; height: 18px; stroke: currentColor; fill: none; }
+
+        /* ALERT */
+        .alert { padding: 12px 14px; border-radius: 8px; margin-bottom: 16px; display: flex; gap: 10px; align-items: flex-start; font-size: 13px; }
         .alert svg { width: 16px; height: 16px; stroke: currentColor; fill: none; flex-shrink: 0; margin-top: 1px; }
         .alert-warning { background: var(--warning-bg); color: var(--warning); border-left: 4px solid var(--warning); }
+        .alert-info { background: var(--blue-pale); color: var(--blue-text); border-left: 4px solid var(--blue); }
 
-        /* ===== TABLES ===== */
-        .section-title { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 14px; }
+        /* TABLES */
+        .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+        .section-title { font-size: 15px; font-weight: 600; color: var(--text); }
         .table-container { overflow-x: auto; -webkit-overflow-scrolling: touch; }
         table { width: 100%; border-collapse: collapse; font-size: 14px; }
         thead { border-bottom: 2px solid var(--border); }
-        th {
-            padding: 9px 13px;
-            text-align: left;
-            font-weight: 600;
-            color: var(--text-muted);
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            white-space: nowrap;
-        }
+        th { padding: 9px 13px; text-align: left; font-weight: 600; color: var(--text-muted); font-size: 11px; text-transform: uppercase; letter-spacing: .5px; white-space: nowrap; }
         td { padding: 12px 13px; border-bottom: 1px solid var(--border); color: var(--text); }
         tbody tr:last-child td { border-bottom: none; }
         tbody tr:hover td { background: #f8fafc; }
+        .empty-state { text-align: center; padding: 32px 20px; color: var(--text-muted); font-size: 14px; }
 
-        /* ===== BADGES ===== */
-        .badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            padding: 3px 9px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-            white-space: nowrap;
-        }
+        /* BADGES */
+        .badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 20px; font-size: 12px; font-weight: 600; white-space: nowrap; }
         .badge-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
-
         .badge-success { background: var(--success-bg); color: var(--success); }
         .badge-success .badge-dot { background: var(--success); }
         .badge-pending { background: var(--warning-bg); color: var(--warning); }
         .badge-pending .badge-dot { background: var(--warning); }
-        .badge-danger  { background: var(--danger-bg);  color: var(--danger); }
+        .badge-danger  { background: var(--danger-bg); color: var(--danger); }
         .badge-danger  .badge-dot { background: var(--danger); }
-
         .badge-pix     { background: #ecfdf5; color: #059669; }
         .badge-credito { background: #eff6ff; color: #1d4ed8; }
         .badge-debito  { background: #f1f5f9; color: #475569; }
         .badge-promiss { background: #fff7ed; color: #c2410c; }
 
-        /* ===== BUTTONS ===== */
-        .btn {
-            padding: 9px 15px;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 13px;
-            transition: background 0.15s;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            font-family: inherit;
-        }
+        /* BUTTONS */
+        .btn { padding: 9px 15px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; font-size: 13px; transition: background .15s; display: inline-flex; align-items: center; gap: 6px; font-family: inherit; }
         .btn svg { width: 15px; height: 15px; stroke: currentColor; fill: none; flex-shrink: 0; }
-        .btn-primary  { background: var(--blue); color: var(--white); }
+        .btn-primary { background: var(--blue); color: var(--white); }
         .btn-primary:hover { background: var(--blue-hover); }
         .btn-secondary { background: var(--white); color: var(--text); border: 1px solid var(--border); }
         .btn-secondary:hover { background: var(--bg); }
         .btn-danger { background: var(--white); color: var(--danger); border: 1px solid var(--border); }
         .btn-danger:hover { background: var(--danger-bg); border-color: var(--danger); }
-        .btn-icon { width: 32px; height: 32px; padding: 0; justify-content: center; }
+        .btn-wa { width: 30px; height: 30px; padding: 0; border-radius: 8px; border: none; background: #dcfce7; color: #16a34a; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; transition: background .15s; flex-shrink: 0; }
+        .btn-wa:hover { background: #bbf7d0; }
+        .btn-wa svg { width: 15px; height: 15px; }
+        .btn-icon { width: 32px; height: 32px; padding: 0; justify-content: center; border-radius: 7px; }
         .btn-icon svg { width: 14px; height: 14px; }
 
-        /* ===== MODAL ===== */
-        .modal-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.55);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            padding: 16px;
-        }
+        /* MODAL */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.55); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 12px; }
+        .modal { background: var(--white); border-radius: 12px; padding: 0; width: 100%; max-width: 540px; box-shadow: 0 24px 60px rgba(0,0,0,.2); animation: slideIn .2s ease; max-height: 96vh; display: flex; flex-direction: column; overflow: hidden; }
+        .modal-header { padding: 20px 24px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+        .modal-header h2 { font-size: 16px; font-weight: 700; }
+        .btn-modal-close { background: none; border: none; cursor: pointer; color: var(--text-muted); padding: 4px; border-radius: 5px; display: flex; align-items: center; }
+        .btn-modal-close:hover { color: var(--text); background: var(--bg); }
+        .modal-body { overflow-y: auto; padding: 20px 24px; flex: 1; }
+        .modal-footer { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; gap: 10px; flex-shrink: 0; }
 
-        .modal {
-            background: var(--white);
-            border-radius: 12px;
-            padding: 24px;
-            width: 100%;
-            max-width: 460px;
-            box-shadow: 0 24px 60px rgba(0,0,0,0.2);
-            animation: slideIn 0.2s ease;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-        .modal h2 { font-size: 16px; font-weight: 700; margin-bottom: 18px; }
+        @keyframes slideIn { from { transform: translateY(-14px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-        @keyframes slideIn {
-            from { transform: translateY(-14px); opacity: 0; }
-            to   { transform: translateY(0);     opacity: 1; }
-        }
-
-        .form-group { display: flex; flex-direction: column; gap: 5px; margin-bottom: 13px; }
+        /* FORM */
+        .form-section { margin-bottom: 20px; }
+        .form-section-label { font-size: 11px; font-weight: 700; color: var(--blue); text-transform: uppercase; letter-spacing: .7px; margin-bottom: 12px; padding-bottom: 6px; border-bottom: 1px solid var(--blue-pale); }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0 12px; }
+        .form-group { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; position: relative; }
         .form-group label { font-weight: 600; color: var(--text); font-size: 13px; }
-        .form-group input,
-        .form-group select {
-            padding: 10px 12px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            font-size: 14px;
-            font-family: inherit;
-            color: var(--text);
-            background: var(--white);
-        }
-        .form-group input:focus,
-        .form-group select:focus {
-            outline: none;
-            border-color: var(--blue);
-            box-shadow: 0 0 0 3px rgba(24,82,212,0.1);
-        }
+        .form-group input, .form-group select, .form-group textarea { padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; font-family: inherit; color: var(--text); background: var(--white); }
+        .form-group textarea { resize: vertical; min-height: 60px; }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(24,82,212,.1); }
 
-        .pagamento-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            margin-top: 4px;
-        }
-        .pagamento-opcao {
-            display: flex;
-            align-items: center;
-            gap: 9px;
-            padding: 10px 12px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 13px;
-        }
+        /* AUTOCOMPLETE */
+        .autocomplete-wrapper { position: relative; }
+        .autocomplete-dropdown { position: absolute; top: calc(100% + 2px); left: 0; right: 0; background: var(--white); border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,.12); z-index: 100; max-height: 180px; overflow-y: auto; display: none; }
+        .ac-item { padding: 10px 13px; cursor: pointer; border-bottom: 1px solid var(--border); }
+        .ac-item:last-child { border-bottom: none; }
+        .ac-item:hover { background: var(--bg); }
+        .ac-item-name { font-weight: 600; font-size: 13px; }
+        .ac-item-sub { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+
+        /* CLIENT HISTORY */
+        .client-history { background: var(--bg); border-radius: 8px; padding: 13px; margin-bottom: 14px; display: none; }
+        .client-history-title { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: .6px; margin-bottom: 10px; }
+        .history-item { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; border-bottom: 1px solid var(--border); }
+        .history-item:last-child { border-bottom: none; }
+        .history-item-left { font-size: 13px; }
+        .history-item-date { font-size: 11px; color: var(--text-muted); }
+        .history-item-right { text-align: right; font-size: 13px; font-weight: 600; color: var(--blue); }
+
+        /* PAGAMENTO GRID */
+        .pagamento-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 4px; }
+        .pagamento-opcao { display: flex; align-items: center; gap: 9px; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: 8px; cursor: pointer; font-size: 13px; transition: border-color .15s, background .15s; }
+        .pagamento-opcao:has(input:checked) { border-color: var(--blue); background: var(--blue-pale); }
         .pagamento-opcao input { accent-color: var(--blue); flex-shrink: 0; }
 
-        /* ===== SCROLLBAR ===== */
+        /* TOAST */
+        .toast { position: fixed; bottom: 20px; right: 20px; background: var(--black); color: var(--white); padding: 12px 18px; border-radius: 10px; font-size: 14px; font-weight: 500; z-index: 2000; animation: toastIn .25s ease; display: flex; align-items: center; gap: 10px; box-shadow: 0 8px 24px rgba(0,0,0,.2); }
+        .toast.success { background: #065f46; }
+        @keyframes toastIn { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        /* SCROLLBAR */
         ::-webkit-scrollbar { width: 5px; height: 5px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 3px; }
         ::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
 
-        /* ===== RESPONSIVE ===== */
-        @media (max-width: 1200px) {
-            .stats-grid { grid-template-columns: repeat(2, 1fr); }
-        }
+        /* RESPONSIVE */
+        @media (max-width: 1200px) { .stats-grid { grid-template-columns: repeat(2,1fr); } }
 
         @media (max-width: 768px) {
-            .sidebar {
-                position: fixed;
-                top: 0; left: 0; bottom: 0;
-                height: 100vh;
-                width: var(--sw) !important;
-                transform: translateX(0);
-                transition: transform 0.25s ease;
-            }
-            .sidebar.collapsed {
-                transform: translateX(-100%);
-                width: var(--sw) !important;
-            }
+            .sidebar { position: fixed; top: 0; left: 0; bottom: 0; height: 100vh; width: var(--sw) !important; transform: translateX(0); transition: transform .25s ease; }
+            .sidebar.collapsed { transform: translateX(-100%); width: var(--sw) !important; }
             .page-content { padding: 14px; }
             .top-bar { padding: 0 14px; }
             .stats-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
             .stat-value { font-size: 22px; }
+            .form-row { grid-template-columns: 1fr; }
             .pagamento-grid { grid-template-columns: 1fr; }
-            .modal-form-2col { grid-template-columns: 1fr !important; }
+            .modal-footer { flex-direction: column; }
+            .modal-footer .btn { justify-content: center; }
         }
 
         @media (max-width: 480px) {
@@ -483,9 +206,9 @@
             .card { padding: 13px; }
             .stat-value { font-size: 20px; }
             .stat-icon { width: 36px; height: 36px; }
-            .stat-icon svg { width: 17px; height: 17px; }
             .page-content { padding: 10px; }
             .top-bar h1 { font-size: 16px; }
+            .btn-novo-servico { font-size: 14px; padding: 10px 16px; }
         }
     </style>
 </head>
@@ -494,7 +217,6 @@
 <div class="overlay" id="overlay" onclick="closeSidebar()"></div>
 
 <div class="app">
-
     <!-- SIDEBAR -->
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-inner">
@@ -507,10 +229,9 @@
                     </div>
                     OficinaMax
                 </div>
-                <button class="btn-close-sidebar" onclick="closeSidebar()" title="Fechar menu">
+                <button class="btn-close-sidebar" onclick="closeSidebar()" title="Fechar">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="18" y1="6" x2="6" y2="18"/>
-                        <line x1="6" y1="6" x2="18" y2="18"/>
+                        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
                     </svg>
                 </button>
             </div>
@@ -518,50 +239,22 @@
             <nav class="sidebar-nav">
                 <button class="nav-item active" onclick="showPage('dashboard', this)">
                     <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="3" y="3" width="7" height="7" rx="1"/>
-                        <rect x="14" y="3" width="7" height="7" rx="1"/>
-                        <rect x="14" y="14" width="7" height="7" rx="1"/>
-                        <rect x="3" y="14" width="7" height="7" rx="1"/>
+                        <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+                        <rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/>
                     </svg>
                     Dashboard
-                </button>
-                <button class="nav-item" onclick="showPage('clientes', this)">
-                    <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                        <circle cx="9" cy="7" r="4"/>
-                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-                        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-                    </svg>
-                    Clientes
-                </button>
-                <button class="nav-item" onclick="showPage('veiculos', this)">
-                    <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M5 17H3a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h2l3-4h8l3 4h2a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-2"/>
-                        <circle cx="7.5" cy="17.5" r="2.5"/>
-                        <circle cx="16.5" cy="17.5" r="2.5"/>
-                    </svg>
-                    Veiculos
-                </button>
-                <button class="nav-item" onclick="showPage('ordens', this)">
-                    <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
-                    </svg>
-                    Ordens de Servico
                 </button>
                 <button class="nav-item" onclick="showPage('agendamento', this)">
                     <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                        <line x1="16" y1="2" x2="16" y2="6"/>
-                        <line x1="8" y1="2" x2="8" y2="6"/>
-                        <line x1="3" y1="10" x2="21" y2="10"/>
+                        <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
                     </svg>
                     Agendamento
                 </button>
                 <button class="nav-item" onclick="showPage('estoque', this)">
                     <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
-                        <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
-                        <line x1="12" y1="22.08" x2="12" y2="12"/>
+                        <polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/>
                     </svg>
                     Estoque
                 </button>
@@ -580,11 +273,9 @@
     <!-- MAIN -->
     <main class="main-content">
         <header class="top-bar">
-            <button class="btn-menu" onclick="openSidebar()" title="Abrir menu">
+            <button class="btn-menu" onclick="openSidebar()" title="Menu">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="3" y1="6"  x2="21" y2="6"/>
-                    <line x1="3" y1="12" x2="21" y2="12"/>
-                    <line x1="3" y1="18" x2="21" y2="18"/>
+                    <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
                 </svg>
             </button>
             <h1 id="pageTitle">Dashboard</h1>
@@ -598,192 +289,71 @@
                     <div class="card stat-card">
                         <div>
                             <div class="stat-label">Faturamento Mes</div>
-                            <div class="stat-value">R$ 14.320</div>
-                            <div class="stat-change up">+12,5% este mes</div>
+                            <div class="stat-value" id="statFaturamento">R$ 0</div>
+                            <div class="stat-change up" id="statFaturamentoSub">este mes</div>
                         </div>
                         <div class="stat-icon blue">
-                            <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <line x1="12" y1="1" x2="12" y2="23"/>
-                                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-                            </svg>
+                            <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
                         </div>
                     </div>
                     <div class="card stat-card">
                         <div>
-                            <div class="stat-label">Servicos Completos</div>
-                            <div class="stat-value">28</div>
-                            <div class="stat-change up">+4 esta semana</div>
+                            <div class="stat-label">Concluidos</div>
+                            <div class="stat-value" id="statConcluidos">0</div>
+                            <div class="stat-change up">este mes</div>
                         </div>
                         <div class="stat-icon blue">
-                            <svg viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="20 6 9 17 4 12"/>
-                            </svg>
+                            <svg viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
                         </div>
                     </div>
                     <div class="card stat-card">
                         <div>
                             <div class="stat-label">Pendentes</div>
-                            <div class="stat-value">7</div>
-                            <div class="stat-change down">-2 vs sem. passada</div>
+                            <div class="stat-value" id="statPendentes">0</div>
+                            <div class="stat-change down">em aberto</div>
                         </div>
                         <div class="stat-icon gray">
-                            <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <circle cx="12" cy="12" r="10"/>
-                                <polyline points="12 6 12 12 16 14"/>
-                            </svg>
+                            <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                         </div>
                     </div>
                     <div class="card stat-card">
                         <div>
-                            <div class="stat-label">Clientes Ativos</div>
-                            <div class="stat-value">156</div>
-                            <div class="stat-change up">+8 este mes</div>
+                            <div class="stat-label">Clientes</div>
+                            <div class="stat-value" id="statClientes">0</div>
+                            <div class="stat-change up">cadastrados</div>
                         </div>
                         <div class="stat-icon blue">
-                            <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                                <circle cx="9" cy="7" r="4"/>
-                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-                                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-                            </svg>
+                            <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                         </div>
                     </div>
                 </div>
 
-                <div class="alert alert-warning">
-                    <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-                        <line x1="12" y1="9" x2="12" y2="13"/>
-                        <line x1="12" y1="17" x2="12.01" y2="17"/>
-                    </svg>
-                    <div><strong>Atencao</strong> — 3 ordens de servico estao pendentes ha mais de 2 dias.</div>
+                <div class="dash-actions">
+                    <button class="btn-novo-servico" onclick="openModal('novoServicoModal')">
+                        <svg viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        Novo Servico
+                    </button>
+                    <a href="https://wa.me/5541995955516" target="_blank" style="display:inline-flex;align-items:center;gap:8px;padding:10px 15px;background:#dcfce7;color:#16a34a;border-radius:9px;font-weight:600;font-size:13px;text-decoration:none;border:1.5px solid #bbf7d0;transition:background .15s;" onmouseover="this.style.background='#bbf7d0'" onmouseout="this.style.background='#dcfce7'">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="#16a34a"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                        WhatsApp Oficina
+                    </a>
                 </div>
 
                 <div class="card">
-                    <div class="section-title">Ultimas Ordens de Servico</div>
+                    <div class="section-header">
+                        <span class="section-title">Servicos Recentes</span>
+                        <span id="totalServicos" style="font-size:12px;color:var(--text-muted)"></span>
+                    </div>
                     <div class="table-container">
                         <table>
                             <thead>
-                                <tr><th>OS</th><th>Cliente</th><th>Veiculo</th><th>Servico</th><th>Pagamento</th><th>Status</th><th>Data</th></tr>
+                                <tr>
+                                    <th>OS</th><th>Cliente</th><th>Veiculo</th><th>Servico</th>
+                                    <th>Valor</th><th>Pagamento</th><th>Status</th><th>Data</th><th>WA</th>
+                                </tr>
                             </thead>
-                            <tbody>
-                                <tr>
-                                    <td><strong>OS-001</strong></td><td>Joao Silva</td><td>Toyota Corolla</td><td>Revisao 10.000 km</td>
-                                    <td><span class="badge badge-pix">Pix</span></td>
-                                    <td><span class="badge badge-success"><span class="badge-dot"></span>Completo</span></td>
-                                    <td>15/01/2024</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>OS-002</strong></td><td>Maria Santos</td><td>Honda Civic</td><td>Troca de oleo</td>
-                                    <td><span class="badge badge-credito">Credito</span></td>
-                                    <td><span class="badge badge-pending"><span class="badge-dot"></span>Em Progresso</span></td>
-                                    <td>14/01/2024</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>OS-003</strong></td><td>Carlos Oliveira</td><td>Ford Focus</td><td>Alinhamento</td>
-                                    <td><span class="badge badge-promiss">Promissoria</span></td>
-                                    <td><span class="badge badge-danger"><span class="badge-dot"></span>Pendente</span></td>
-                                    <td>13/01/2024</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>OS-004</strong></td><td>Ana Costa</td><td>VW Gol</td><td>Freios</td>
-                                    <td><span class="badge badge-debito">Debito</span></td>
-                                    <td><span class="badge badge-success"><span class="badge-dot"></span>Completo</span></td>
-                                    <td>12/01/2024</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- CLIENTES -->
-            <div id="clientes-page" style="display:none;">
-                <div style="margin-bottom:14px;">
-                    <button class="btn btn-primary" onclick="openModal('clienteModal')">
-                        <svg viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                        Novo Cliente
-                    </button>
-                </div>
-                <div class="card">
-                    <div class="table-container">
-                        <table>
-                            <thead><tr><th>Nome</th><th>Telefone</th><th>Email</th><th>Veiculo</th><th>Acoes</th></tr></thead>
-                            <tbody>
-                                <tr>
-                                    <td><strong>Joao Silva</strong></td><td>(11) 98765-4321</td><td>joao@email.com</td><td>Toyota Corolla</td>
-                                    <td style="display:flex;gap:6px;">
-                                        <button class="btn btn-secondary btn-icon" title="Editar"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
-                                        <button class="btn btn-danger btn-icon" title="Excluir"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Maria Santos</strong></td><td>(11) 99876-5432</td><td>maria@email.com</td><td>Honda Civic</td>
-                                    <td style="display:flex;gap:6px;">
-                                        <button class="btn btn-secondary btn-icon" title="Editar"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
-                                        <button class="btn btn-danger btn-icon" title="Excluir"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Carlos Oliveira</strong></td><td>(11) 97654-3210</td><td>carlos@email.com</td><td>Ford Focus</td>
-                                    <td style="display:flex;gap:6px;">
-                                        <button class="btn btn-secondary btn-icon" title="Editar"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
-                                        <button class="btn btn-danger btn-icon" title="Excluir"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- VEICULOS -->
-            <div id="veiculos-page" style="display:none;">
-                <div style="margin-bottom:14px;">
-                    <button class="btn btn-primary"><svg viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Novo Veiculo</button>
-                </div>
-                <div class="card">
-                    <div class="table-container">
-                        <table>
-                            <thead><tr><th>Placa</th><th>Modelo</th><th>Ano</th><th>Cliente</th><th>Km</th><th>Prox. Revisao</th></tr></thead>
-                            <tbody>
-                                <tr><td><strong>ABC-1234</strong></td><td>Toyota Corolla</td><td>2020</td><td>Joao Silva</td><td>45.230 km</td><td>10/02/2024</td></tr>
-                                <tr><td><strong>XYZ-5678</strong></td><td>Honda Civic</td><td>2019</td><td>Maria Santos</td><td>62.150 km</td><td>15/02/2024</td></tr>
-                                <tr><td><strong>DEF-9012</strong></td><td>Ford Focus</td><td>2021</td><td>Carlos Oliveira</td><td>32.890 km</td><td>01/03/2024</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- ORDENS -->
-            <div id="ordens-page" style="display:none;">
-                <div style="margin-bottom:14px;">
-                    <button class="btn btn-primary" onclick="openModal('osModal')"><svg viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Nova OS</button>
-                </div>
-                <div class="card">
-                    <div class="table-container">
-                        <table>
-                            <thead><tr><th>OS</th><th>Cliente</th><th>Servico</th><th>Valor</th><th>Pagamento</th><th>Status</th><th>Data</th></tr></thead>
-                            <tbody>
-                                <tr>
-                                    <td><strong>OS-001</strong></td><td>Joao Silva</td><td>Revisao 10.000 km</td>
-                                    <td style="color:var(--blue);font-weight:600">R$ 450</td>
-                                    <td><span class="badge badge-pix">Pix</span></td>
-                                    <td><span class="badge badge-success"><span class="badge-dot"></span>Completo</span></td><td>15/01/2024</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>OS-002</strong></td><td>Maria Santos</td><td>Troca de oleo</td>
-                                    <td style="color:var(--blue);font-weight:600">R$ 120</td>
-                                    <td><span class="badge badge-credito">Credito</span></td>
-                                    <td><span class="badge badge-pending"><span class="badge-dot"></span>Em Progresso</span></td><td>14/01/2024</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>OS-003</strong></td><td>Carlos Oliveira</td><td>Alinhamento 4 rodas</td>
-                                    <td style="color:var(--blue);font-weight:600">R$ 200</td>
-                                    <td><span class="badge badge-promiss">Promissoria</span></td>
-                                    <td><span class="badge badge-danger"><span class="badge-dot"></span>Pendente</span></td><td>13/01/2024</td>
-                                </tr>
+                            <tbody id="servicesTableBody">
+                                <tr><td colspan="9" class="empty-state">Nenhum servico registrado. Clique em "Novo Servico" para comecar.</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -833,96 +403,383 @@
     </main>
 </div>
 
-<!-- MODAL CLIENTE -->
-<div id="clienteModal" class="modal-overlay" style="display:none;" onclick="this.style.display='none'">
+<!-- MODAL NOVO SERVICO -->
+<div id="novoServicoModal" class="modal-overlay" style="display:none;" onclick="if(event.target===this)closeModal('novoServicoModal')">
     <div class="modal" onclick="event.stopPropagation()">
-        <h2>Novo Cliente</h2>
-        <form>
-            <div class="form-group"><label>Nome Completo</label><input type="text" placeholder="Ex: Joao Silva" required></div>
-            <div class="form-group"><label>Telefone</label><input type="tel" placeholder="(11) 98765-4321" required></div>
-            <div class="form-group"><label>Email</label><input type="email" placeholder="joao@email.com" required></div>
-            <div class="form-group"><label>Veiculo Principal</label><input type="text" placeholder="Ex: Toyota Corolla 2020"></div>
-            <div style="display:flex;gap:10px;margin-top:18px;">
-                <button type="submit" class="btn btn-primary" style="flex:1;">Criar Cliente</button>
-                <button type="button" class="btn btn-secondary" style="flex:1;" onclick="document.getElementById('clienteModal').style.display='none'">Cancelar</button>
-            </div>
-        </form>
-    </div>
-</div>
+        <div class="modal-header">
+            <h2>Novo Servico</h2>
+            <button class="btn-modal-close" onclick="closeModal('novoServicoModal')">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form id="novoServicoForm" onsubmit="return false;">
 
-<!-- MODAL OS -->
-<div id="osModal" class="modal-overlay" style="display:none;" onclick="this.style.display='none'">
-    <div class="modal" onclick="event.stopPropagation()">
-        <h2>Nova Ordem de Servico</h2>
-        <form>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 13px;" class="modal-form-2col">
-                <div class="form-group"><label>Cliente</label><input type="text" placeholder="Ex: Joao Silva" required></div>
-                <div class="form-group"><label>Veiculo</label><input type="text" placeholder="Ex: Toyota Corolla"></div>
-            </div>
-            <div class="form-group"><label>Servico</label><input type="text" placeholder="Ex: Revisao 10.000 km" required></div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 13px;" class="modal-form-2col">
-                <div class="form-group"><label>Valor (R$)</label><input type="number" placeholder="0,00" min="0" step="0.01"></div>
-                <div class="form-group"><label>Data</label><input type="date"></div>
-            </div>
-            <div class="form-group">
-                <label>Forma de Pagamento</label>
-                <div class="pagamento-grid">
-                    <label class="pagamento-opcao"><input type="radio" name="pag" value="pix" required><span style="color:#059669;font-weight:600;">Pix</span></label>
-                    <label class="pagamento-opcao"><input type="radio" name="pag" value="credito"><span style="color:#1d4ed8;font-weight:600;">Cartao Credito</span></label>
-                    <label class="pagamento-opcao"><input type="radio" name="pag" value="debito"><span style="color:#475569;font-weight:600;">Cartao Debito</span></label>
-                    <label class="pagamento-opcao"><input type="radio" name="pag" value="promissoria"><span style="color:#c2410c;font-weight:600;">Promissoria</span></label>
+                <!-- CLIENTE -->
+                <div class="form-section">
+                    <div class="form-section-label">Cliente</div>
+                    <div class="form-group autocomplete-wrapper">
+                        <label>Nome do Cliente <span style="color:var(--danger)">*</span></label>
+                        <input type="text" id="sNome" placeholder="Digite o nome..." autocomplete="off" oninput="acSearch(this.value)">
+                        <div class="autocomplete-dropdown" id="acDropdown"></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Telefone / WhatsApp</label>
+                            <input type="tel" id="sTelefone" placeholder="(41) 9 9999-9999">
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" id="sEmail" placeholder="email@exemplo.com">
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <div class="form-group">
-                <label>Status</label>
-                <select><option value="pendente">Pendente</option><option value="progresso">Em Progresso</option><option value="completo">Completo</option></select>
-            </div>
-            <div style="display:flex;gap:10px;margin-top:18px;">
-                <button type="submit" class="btn btn-primary" style="flex:1;">Criar OS</button>
-                <button type="button" class="btn btn-secondary" style="flex:1;" onclick="document.getElementById('osModal').style.display='none'">Cancelar</button>
-            </div>
-        </form>
+
+                <!-- HISTORICO -->
+                <div class="client-history" id="clienteHistorico">
+                    <div class="client-history-title">Ultimos servicos deste cliente</div>
+                    <div id="clienteHistoricoItems"></div>
+                </div>
+
+                <!-- VEICULO -->
+                <div class="form-section">
+                    <div class="form-section-label">Veiculo</div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Modelo / Marca</label>
+                            <input type="text" id="sVeiculo" placeholder="Ex: Toyota Corolla">
+                        </div>
+                        <div class="form-group">
+                            <label>Placa</label>
+                            <input type="text" id="sPlaca" placeholder="ABC-1234">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Ano</label>
+                            <input type="number" id="sAno" placeholder="2020" min="1990" max="2030">
+                        </div>
+                        <div class="form-group">
+                            <label>Quilometragem</label>
+                            <input type="text" id="sKm" placeholder="45.230 km">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SERVICO -->
+                <div class="form-section">
+                    <div class="form-section-label">Servico</div>
+                    <div class="form-group">
+                        <label>Tipo de Servico <span style="color:var(--danger)">*</span></label>
+                        <input type="text" id="sServico" placeholder="Ex: Revisao 10.000 km, Troca de oleo...">
+                    </div>
+                    <div class="form-group">
+                        <label>Observacoes</label>
+                        <textarea id="sDescricao" placeholder="Detalhes adicionais..."></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Valor (R$)</label>
+                            <input type="number" id="sValor" placeholder="0,00" min="0" step="0.01">
+                        </div>
+                        <div class="form-group">
+                            <label>Data do Servico</label>
+                            <input type="date" id="sData">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select id="sStatus">
+                            <option value="pendente">Pendente</option>
+                            <option value="progresso">Em Progresso</option>
+                            <option value="completo">Concluido</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- PAGAMENTO -->
+                <div class="form-section">
+                    <div class="form-section-label">Forma de Pagamento</div>
+                    <div class="pagamento-grid">
+                        <label class="pagamento-opcao"><input type="radio" name="sPag" value="pix" checked><span style="color:#059669;font-weight:600;">Pix</span></label>
+                        <label class="pagamento-opcao"><input type="radio" name="sPag" value="credito"><span style="color:#1d4ed8;font-weight:600;">Cartao Credito</span></label>
+                        <label class="pagamento-opcao"><input type="radio" name="sPag" value="debito"><span style="color:#475569;font-weight:600;">Cartao Debito</span></label>
+                        <label class="pagamento-opcao"><input type="radio" name="sPag" value="promissoria"><span style="color:#c2410c;font-weight:600;">Promissoria</span></label>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-primary" style="flex:1;" onclick="salvarServico(false)">Salvar</button>
+            <button type="button" style="flex:1;padding:10px 15px;border-radius:8px;border:none;cursor:pointer;font-weight:600;font-size:13px;background:#dcfce7;color:#16a34a;display:inline-flex;align-items:center;justify-content:center;gap:7px;font-family:inherit;transition:background .15s;" onclick="salvarServico(true)" onmouseover="this.style.background='#bbf7d0'" onmouseout="this.style.background='#dcfce7'">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="#16a34a"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                Salvar + WhatsApp
+            </button>
+            <button type="button" class="btn btn-secondary" onclick="closeModal('novoServicoModal')">Cancelar</button>
+        </div>
     </div>
 </div>
 
 <script>
+    // ===== DATA =====
+    let clients  = JSON.parse(localStorage.getItem('om_clients')  || '[]');
+    let services = JSON.parse(localStorage.getItem('om_services') || '[]');
+
+    function persist() {
+        localStorage.setItem('om_clients',  JSON.stringify(clients));
+        localStorage.setItem('om_services', JSON.stringify(services));
+    }
+
+    function genOsId() {
+        const n = services.length + 1;
+        return 'OS-' + String(n).padStart(3, '0');
+    }
+
+    // ===== INIT =====
+    (function init() {
+        // Set today's date on form
+        document.getElementById('sData').value = new Date().toISOString().split('T')[0];
+        renderDashboard();
+        if (window.innerWidth <= 768) closeSidebar();
+    })();
+
+    // ===== RENDER =====
+    function renderDashboard() {
+        renderStats();
+        renderServicesTable();
+    }
+
+    function renderStats() {
+        const now   = new Date();
+        const month = now.getMonth();
+        const year  = now.getFullYear();
+
+        const thisMonth = services.filter(s => {
+            const d = new Date(s.timestamp);
+            return d.getMonth() === month && d.getFullYear() === year;
+        });
+
+        const faturamento = thisMonth.reduce((a, s) => a + (parseFloat(s.valor) || 0), 0);
+        const concluidos  = thisMonth.filter(s => s.status === 'completo').length;
+        const pendentes   = services.filter(s => s.status === 'pendente').length;
+
+        document.getElementById('statFaturamento').textContent = 'R$ ' + faturamento.toLocaleString('pt-BR', {minimumFractionDigits: 2});
+        document.getElementById('statConcluidos').textContent  = concluidos;
+        document.getElementById('statPendentes').textContent   = pendentes;
+        document.getElementById('statClientes').textContent    = clients.length;
+    }
+
+    function renderServicesTable() {
+        const tbody = document.getElementById('servicesTableBody');
+        const total = document.getElementById('totalServicos');
+        total.textContent = services.length + ' servico(s)';
+
+        if (services.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="9" class="empty-state">Nenhum servico registrado. Clique em "Novo Servico" para comecar.</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = services.slice(0, 50).map(s => {
+            const pagBadge  = { pix:'badge-pix', credito:'badge-credito', debito:'badge-debito', promissoria:'badge-promiss' }[s.pagamento] || 'badge-debito';
+            const pagLabel  = { pix:'Pix', credito:'Credito', debito:'Debito', promissoria:'Promissoria' }[s.pagamento] || s.pagamento;
+            const statBadge = { completo:'badge-success', progresso:'badge-pending', pendente:'badge-danger' }[s.status] || 'badge-danger';
+            const statLabel = { completo:'Concluido', progresso:'Em Progresso', pendente:'Pendente' }[s.status] || s.status;
+            const statDot   = '<span class="badge-dot"></span>';
+            const valor     = parseFloat(s.valor) ? 'R$ ' + parseFloat(s.valor).toLocaleString('pt-BR', {minimumFractionDigits: 2}) : '-';
+            const tel       = (s.telefone || '').replace(/\D/g, '');
+
+            return `<tr>
+                <td><strong>${s.id}</strong></td>
+                <td>${s.nome}</td>
+                <td>${s.veiculo || '-'}</td>
+                <td>${s.servico}</td>
+                <td style="color:var(--blue);font-weight:600">${valor}</td>
+                <td><span class="badge ${pagBadge}">${pagLabel}</span></td>
+                <td><span class="badge ${statBadge}">${statDot}${statLabel}</span></td>
+                <td style="white-space:nowrap">${s.dataDisplay}</td>
+                <td>${tel ? `<button class="btn-wa" onclick="sendWA('${tel}','${escHtml(s.nome)}','${escHtml(s.servico)}','${valor}','${statLabel}')" title="Enviar WhatsApp para ${escHtml(s.nome)}">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                </button>` : '-'}</td>
+            </tr>`;
+        }).join('');
+    }
+
+    function escHtml(s) { return (s||'').replace(/'/g,"&#39;").replace(/"/g,"&quot;"); }
+
+    // ===== SAVE SERVICE =====
+    function salvarServico(sendWAAfter) {
+        const nome    = document.getElementById('sNome').value.trim();
+        const servico = document.getElementById('sServico').value.trim();
+        if (!nome)    { showToast('Informe o nome do cliente.', false); return; }
+        if (!servico) { showToast('Informe o tipo de servico.', false); return; }
+
+        const telefone = document.getElementById('sTelefone').value.trim();
+        const email    = document.getElementById('sEmail').value.trim();
+        const veiculo  = document.getElementById('sVeiculo').value.trim();
+        const placa    = document.getElementById('sPlaca').value.trim();
+        const ano      = document.getElementById('sAno').value.trim();
+        const km       = document.getElementById('sKm').value.trim();
+        const descricao= document.getElementById('sDescricao').value.trim();
+        const valor    = document.getElementById('sValor').value.trim();
+        const dataRaw  = document.getElementById('sData').value;
+        const status   = document.getElementById('sStatus').value;
+        const pagamento= document.querySelector('input[name="sPag"]:checked')?.value || 'pix';
+
+        const dateObj   = dataRaw ? new Date(dataRaw + 'T12:00') : new Date();
+        const dataDisplay = dateObj.toLocaleDateString('pt-BR');
+
+        // Upsert client
+        const telClean = telefone.replace(/\D/g,'');
+        let client = clients.find(c => c.nome.toLowerCase() === nome.toLowerCase() && c.telefone.replace(/\D/g,'') === telClean) ||
+                     clients.find(c => c.nome.toLowerCase() === nome.toLowerCase());
+        if (!client) {
+            client = { id: Date.now().toString(), nome, telefone, email, veiculo };
+            clients.push(client);
+        } else {
+            if (telefone) client.telefone = telefone;
+            if (email)    client.email    = email;
+            if (veiculo)  client.veiculo  = veiculo;
+        }
+
+        const os = {
+            id: genOsId(), nome, telefone, email, veiculo, placa, ano, km,
+            servico, descricao, valor, dataDisplay, status, pagamento,
+            timestamp: Date.now()
+        };
+
+        services.unshift(os);
+        persist();
+        renderDashboard();
+        closeModal('novoServicoModal');
+        resetForm();
+        showToast('Servico salvo com sucesso!', true);
+
+        if (sendWAAfter && telefone) {
+            sendWA(telefone.replace(/\D/g,''), nome, servico,
+                parseFloat(valor) ? 'R$ ' + parseFloat(valor).toLocaleString('pt-BR',{minimumFractionDigits:2}) : '',
+                { completo:'concluido', progresso:'em andamento', pendente:'pendente' }[status] || status);
+        }
+    }
+
+    function resetForm() {
+        ['sNome','sTelefone','sEmail','sVeiculo','sPlaca','sAno','sKm','sServico','sDescricao','sValor'].forEach(id => {
+            document.getElementById(id).value = '';
+        });
+        document.getElementById('sData').value   = new Date().toISOString().split('T')[0];
+        document.getElementById('sStatus').value  = 'pendente';
+        document.querySelector('input[name="sPag"][value="pix"]').checked = true;
+        document.getElementById('clienteHistorico').style.display = 'none';
+        document.getElementById('acDropdown').style.display = 'none';
+    }
+
+    // ===== AUTOCOMPLETE =====
+    function acSearch(val) {
+        const drop = document.getElementById('acDropdown');
+        if (val.length < 1) { drop.style.display = 'none'; return; }
+        const q = val.toLowerCase();
+        const matches = clients.filter(c =>
+            c.nome.toLowerCase().includes(q) || (c.telefone||'').includes(q)
+        ).slice(0, 6);
+        if (!matches.length) { drop.style.display = 'none'; return; }
+        drop.innerHTML = matches.map(c => `
+            <div class="ac-item" onclick="selectClient('${c.id}')">
+                <div class="ac-item-name">${c.nome}</div>
+                <div class="ac-item-sub">${c.telefone || ''}${c.veiculo ? ' · ' + c.veiculo : ''}</div>
+            </div>
+        `).join('');
+        drop.style.display = 'block';
+    }
+
+    function selectClient(id) {
+        const c = clients.find(x => x.id === id);
+        if (!c) return;
+        document.getElementById('sNome').value     = c.nome;
+        document.getElementById('sTelefone').value = c.telefone || '';
+        document.getElementById('sEmail').value    = c.email    || '';
+        document.getElementById('sVeiculo').value  = c.veiculo  || '';
+        document.getElementById('acDropdown').style.display = 'none';
+        showClientHistory(c);
+    }
+
+    function showClientHistory(c) {
+        const hist = services.filter(s =>
+            s.nome.toLowerCase() === c.nome.toLowerCase() ||
+            (s.telefone && c.telefone && s.telefone.replace(/\D/g,'') === c.telefone.replace(/\D/g,''))
+        ).slice(0, 4);
+
+        const div   = document.getElementById('clienteHistorico');
+        const items = document.getElementById('clienteHistoricoItems');
+
+        if (!hist.length) { div.style.display = 'none'; return; }
+
+        items.innerHTML = hist.map(s => {
+            const lbl = { completo:'Concluido', progresso:'Em Progresso', pendente:'Pendente' }[s.status] || s.status;
+            const cls = { completo:'badge-success', progresso:'badge-pending', pendente:'badge-danger' }[s.status];
+            const val = parseFloat(s.valor) ? ' · R$ ' + parseFloat(s.valor).toLocaleString('pt-BR',{minimumFractionDigits:2}) : '';
+            return `<div class="history-item">
+                <div>
+                    <div class="history-item-left">${s.servico}${s.veiculo ? ' — ' + s.veiculo : ''}</div>
+                    <div class="history-item-date">${s.dataDisplay}${val}</div>
+                </div>
+                <span class="badge ${cls}" style="font-size:11px"><span class="badge-dot"></span>${lbl}</span>
+            </div>`;
+        }).join('');
+        div.style.display = 'block';
+    }
+
+    // Close autocomplete on outside click
+    document.addEventListener('click', e => {
+        if (!e.target.closest('.autocomplete-wrapper'))
+            document.getElementById('acDropdown').style.display = 'none';
+    });
+
+    // ===== WHATSAPP =====
+    function sendWA(tel, nome, servico, valor, status) {
+        const digits = tel.replace(/\D/g,'');
+        const number = digits.startsWith('55') ? digits : '55' + digits;
+        const msg = encodeURIComponent(
+            'Ola ' + nome + '! Seu servico "' + servico + '" esta ' + status +
+            (valor ? '. Valor: ' + valor : '') +
+            '. Obrigado pela preferencia! — OficinaMax'
+        );
+        window.open('https://wa.me/' + number + '?text=' + msg, '_blank');
+    }
+
+    // ===== TOAST =====
+    function showToast(msg, ok) {
+        const t = document.createElement('div');
+        t.className = 'toast' + (ok ? ' success' : '');
+        t.innerHTML = (ok
+            ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>'
+            : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>')
+            + msg;
+        document.body.appendChild(t);
+        setTimeout(() => t.remove(), 3000);
+    }
+
+    // ===== SIDEBAR =====
     const sidebar = document.getElementById('sidebar');
     const overlay = document.getElementById('overlay');
     const mobile  = () => window.innerWidth <= 768;
+    function openSidebar()  { sidebar.classList.remove('collapsed'); if (mobile()) overlay.classList.add('active'); }
+    function closeSidebar() { sidebar.classList.add('collapsed'); overlay.classList.remove('active'); }
+    window.addEventListener('resize', () => { if (!mobile()) overlay.classList.remove('active'); });
 
-    function openSidebar() {
-        sidebar.classList.remove('collapsed');
-        if (mobile()) overlay.classList.add('active');
-    }
-
-    function closeSidebar() {
-        sidebar.classList.add('collapsed');
-        overlay.classList.remove('active');
-    }
-
-    if (mobile()) closeSidebar();
-
-    window.addEventListener('resize', () => {
-        if (!mobile()) overlay.classList.remove('active');
-    });
-
-    function showPage(pageName, btn) {
-        document.querySelectorAll('[id$="-page"]').forEach(p => p.style.display = 'none');
-        const page = document.getElementById(pageName + '-page');
-        if (page) page.style.display = 'block';
+    // ===== NAVIGATION =====
+    function showPage(p, btn) {
+        document.querySelectorAll('[id$="-page"]').forEach(x => x.style.display = 'none');
+        const el = document.getElementById(p + '-page');
+        if (el) el.style.display = 'block';
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
         if (btn) btn.classList.add('active');
-        const titles = {
-            dashboard:'Dashboard', clientes:'Clientes', veiculos:'Veiculos',
-            ordens:'Ordens de Servico', agendamento:'Agendamento', estoque:'Estoque'
-        };
-        document.getElementById('pageTitle').textContent = titles[pageName] || 'Dashboard';
+        const titles = { dashboard:'Dashboard', agendamento:'Agendamento', estoque:'Estoque' };
+        document.getElementById('pageTitle').textContent = titles[p] || 'Dashboard';
         if (mobile()) closeSidebar();
     }
 
-    function openModal(id) {
-        document.getElementById(id).style.display = 'flex';
-    }
+    function openModal(id)  { document.getElementById(id).style.display = 'flex'; }
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 </script>
 </body>
 </html>
