@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OficinaMax - Painel Administrativo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --black:        #0d1117;
+            --black-mid:    #161b22;
+            --black-border: #21262d;
+            --blue:         #1a56db;
+            --blue-hover:   #1544b8;
+            --blue-pale:    #dbeafe;
+            --blue-text:    #1d4ed8;
+            --white:        #ffffff;
+            --bg:           #f0f4f8;
+            --border:       #e2e8f0;
+            --text:         #111827;
+            --text-muted:   #6b7280;
+            --success:      #059669;
+            --success-bg:   #d1fae5;
+            --warning:      #d97706;
+            --warning-bg:   #fef3c7;
+            --danger:       #dc2626;
+            --danger-bg:    #fee2e2;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+        }
+
+        .app {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* ========== SIDEBAR ========== */
+        .sidebar {
+            width: 256px;
+            background: var(--black);
+            color: var(--white);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: 22px 20px;
+            border-bottom: 1px solid var(--black-border);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--white);
+            letter-spacing: -0.3px;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--blue);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 12px 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            padding: 11px 14px;
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.55);
+            cursor: pointer;
+            border-radius: 8px;
+            transition: background 0.15s, color 0.15s;
+            font-weight: 500;
+            font-size: 14px;
+            text-align: left;
+            width: 100%;
+            font-family: inherit;
+        }
+
+        .nav-item svg {
+            width: 17px;
+            height: 17px;
+            stroke: currentColor;
+            fill: none;
+            flex-shrink: 0;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.07);
+            color: rgba(255, 255, 255, 0.85);
+        }
+
+        .nav-item.active {
+            background: var(--blue);
+            color: var(--white);
+        }
+
+        .sidebar-footer {
+            padding: 16px 20px;
+            border-top: 1px solid var(--black-border);
+            display: flex;
+            align-items: center;
+            gap: 11px;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: var(--blue);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 13px;
+            color: var(--white);
+            flex-shrink: 0;
+        }
+
+        .user-name {
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--white);
+        }
+
+        .user-role {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.45);
+        }
+
+        /* ========== MAIN CONTENT ========== */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            min-width: 0;
+        }
+
+        .top-bar {
+            background: var(--white);
+            border-bottom: 1px solid var(--border);
+            padding: 0 28px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .top-bar h1 {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .page-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px 28px;
+        }
+
+        /* ========== STATS ========== */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: var(--white);
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid var(--border);
+        }
+
+        .stat-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            margin-bottom: 10px;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text);
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+
+        .stat-change {
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .stat-change.up   { color: var(--success); }
+        .stat-change.down { color: var(--danger); }
+
+        .stat-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .stat-icon svg {
+            width: 21px;
+            height: 21px;
+            stroke: currentColor;
+            fill: none;
+        }
+
+        .stat-icon.blue  { background: var(--blue-pale); color: var(--blue-text); }
+        .stat-icon.gray  { background: #e5e7eb; color: #374151; }
+
+        /* ========== PAGAMENTO ========== */
+        .badge-pix     { background: #ecfdf5; color: #059669; }
+        .badge-credito { background: #eff6ff; color: #1d4ed8; }
+        .badge-debito  { background: #f1f5f9; color: #475569; }
+        .badge-promiss { background: #fff7ed; color: #c2410c; }
+
+        .pagamento-select {
+            padding: 6px 10px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 13px;
+            font-family: inherit;
+            color: var(--text);
+            background: var(--white);
+            cursor: pointer;
+        }
+
+        .pagamento-select:focus {
+            outline: none;
+            border-color: var(--blue);
+            box-shadow: 0 0 0 3px rgba(26, 86, 219, 0.1);
+        }
+
+        /* ========== ALERT ========== */
+        .alert {
+            padding: 13px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 11px;
+            align-items: flex-start;
+            font-size: 14px;
+        }
+
+        .alert svg {
+            width: 17px;
+            height: 17px;
+            stroke: currentColor;
+            fill: none;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .alert-warning {
+            background: var(--warning-bg);
+            color: var(--warning);
+            border-left: 4px solid var(--warning);
+        }
+
+        /* ========== TABLES ========== */
+        .section-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 16px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        thead {
+            border-bottom: 2px solid var(--border);
+        }
+
+        th {
+            padding: 10px 14px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--text-muted);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+        }
+
+        td {
+            padding: 14px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text);
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        tbody tr:hover td {
+            background: #f8fafc;
+        }
+
+        /* ========== BADGES ========== */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .badge-success { background: var(--success-bg); color: var(--success); }
+        .badge-success .badge-dot { background: var(--success); }
+
+        .badge-pending { background: var(--warning-bg); color: var(--warning); }
+        .badge-pending .badge-dot { background: var(--warning); }
+
+        .badge-danger  { background: var(--danger-bg);  color: var(--danger);  }
+        .badge-danger  .badge-dot { background: var(--danger); }
+
+        /* ========== BUTTONS ========== */
+        .btn {
+            padding: 9px 16px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            transition: background 0.15s, box-shadow 0.15s;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            font-family: inherit;
+        }
+
+        .btn svg {
+            width: 15px;
+            height: 15px;
+            stroke: currentColor;
+            fill: none;
+            flex-shrink: 0;
+        }
+
+        .btn-primary {
+            background: var(--blue);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background: var(--blue-hover);
+        }
+
+        .btn-secondary {
+            background: var(--white);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg);
+        }
+
+        .btn-icon {
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            justify-content: center;
+        }
+
+        .btn-icon svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .btn-danger {
+            background: var(--white);
+            color: var(--danger);
+            border: 1px solid var(--border);
+        }
+
+        .btn-danger:hover {
+            background: var(--danger-bg);
+            border-color: var(--danger);
+        }
+
+        /* ========== MODAL ========== */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.55);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 28px;
+            width: 90%;
+            max-width: 460px;
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.2);
+            animation: slideIn 0.2s ease;
+        }
+
+        .modal h2 {
+            font-size: 17px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--text);
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-16px); opacity: 0; }
+            to   { transform: translateY(0);     opacity: 1; }
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 14px;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: var(--text);
+            font-size: 13px;
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            color: var(--text);
+            background: var(--white);
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--blue);
+            box-shadow: 0 0 0 3px rgba(26, 86, 219, 0.1);
+        }
+
+        /* ========== SCROLLBAR ========== */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+
+        /* ========== RESPONSIVE ========== */
+        @media (max-width: 1024px) {
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar { width: 220px; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .page-content { padding: 16px; }
+            .top-bar { padding: 0 16px; }
+        }
+    </style>
+</head>
+<body>
+<div class="app">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <div class="logo-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+                    </svg>
+                </div>
+                OficinaMax
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <button class="nav-item active" onclick="showPage('dashboard', this)">
+                <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="7" height="7" rx="1"/>
+                    <rect x="14" y="3" width="7" height="7" rx="1"/>
+                    <rect x="14" y="14" width="7" height="7" rx="1"/>
+                    <rect x="3" y="14" width="7" height="7" rx="1"/>
+                </svg>
+                Dashboard
+            </button>
+
+            <button class="nav-item" onclick="showPage('clientes', this)">
+                <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                    <circle cx="9" cy="7" r="4"/>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                </svg>
+                Clientes
+            </button>
+
+            <button class="nav-item" onclick="showPage('veiculos', this)">
+                <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M5 17H3a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h2l3-4h8l3 4h2a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-2"/>
+                    <circle cx="7.5" cy="17.5" r="2.5"/>
+                    <circle cx="16.5" cy="17.5" r="2.5"/>
+                </svg>
+                Veículos
+            </button>
+
+            <button class="nav-item" onclick="showPage('ordens', this)">
+                <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+                </svg>
+                Ordens de Serviço
+            </button>
+
+            <button class="nav-item" onclick="showPage('agendamento', this)">
+                <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                    <line x1="16" y1="2" x2="16" y2="6"/>
+                    <line x1="8" y1="2" x2="8" y2="6"/>
+                    <line x1="3" y1="10" x2="21" y2="10"/>
+                </svg>
+                Agendamento
+            </button>
+
+            <button class="nav-item" onclick="showPage('estoque', this)">
+                <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                    <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+                    <line x1="12" y1="22.08" x2="12" y2="12"/>
+                </svg>
+                Estoque
+            </button>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="user-avatar">JM</div>
+            <div>
+                <div class="user-name">João Mota</div>
+                <div class="user-role">Gerente</div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+        <header class="top-bar">
+            <h1 id="pageTitle">Dashboard</h1>
+        </header>
+
+        <div class="page-content">
+
+            <!-- DASHBOARD -->
+            <div id="dashboard-page">
+                <div class="stats-grid">
+                    <div class="card stat-card">
+                        <div>
+                            <div class="stat-label">Faturamento Mês</div>
+                            <div class="stat-value">R$ 14.320</div>
+                            <div class="stat-change up">+12,5% este mês</div>
+                        </div>
+                        <div class="stat-icon blue">
+                            <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="12" y1="1" x2="12" y2="23"/>
+                                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <div class="card stat-card">
+                        <div>
+                            <div class="stat-label">Serviços Completos</div>
+                            <div class="stat-value">28</div>
+                            <div class="stat-change up">+4 esta semana</div>
+                        </div>
+                        <div class="stat-icon blue">
+                            <svg viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12"/>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <div class="card stat-card">
+                        <div>
+                            <div class="stat-label">Pendentes</div>
+                            <div class="stat-value">7</div>
+                            <div class="stat-change down">-2 vs semana passada</div>
+                        </div>
+                        <div class="stat-icon gray">
+                            <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"/>
+                                <polyline points="12 6 12 12 16 14"/>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <div class="card stat-card">
+                        <div>
+                            <div class="stat-label">Clientes Ativos</div>
+                            <div class="stat-value">156</div>
+                            <div class="stat-change up">+8 este mês</div>
+                        </div>
+                        <div class="stat-icon blue">
+                            <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                                <circle cx="9" cy="7" r="4"/>
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="alert alert-warning">
+                    <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                        <line x1="12" y1="9" x2="12" y2="13"/>
+                        <line x1="12" y1="17" x2="12.01" y2="17"/>
+                    </svg>
+                    <div>
+                        <strong>Atenção</strong> — 3 ordens de serviço estão pendentes há mais de 2 dias.
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="section-title">Últimas Ordens de Serviço</div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>OS</th>
+                                    <th>Cliente</th>
+                                    <th>Veículo</th>
+                                    <th>Serviço</th>
+                                    <th>Pagamento</th>
+                                    <th>Status</th>
+                                    <th>Data</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>OS-001</strong></td>
+                                    <td>João Silva</td>
+                                    <td>Toyota Corolla</td>
+                                    <td>Revisão 10.000 km</td>
+                                    <td><span class="badge badge-pix">Pix</span></td>
+                                    <td><span class="badge badge-success"><span class="badge-dot"></span>Completo</span></td>
+                                    <td>15/01/2024</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>OS-002</strong></td>
+                                    <td>Maria Santos</td>
+                                    <td>Honda Civic</td>
+                                    <td>Troca de óleo</td>
+                                    <td><span class="badge badge-credito">Cartão Crédito</span></td>
+                                    <td><span class="badge badge-pending"><span class="badge-dot"></span>Em Progresso</span></td>
+                                    <td>14/01/2024</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>OS-003</strong></td>
+                                    <td>Carlos Oliveira</td>
+                                    <td>Ford Focus</td>
+                                    <td>Alinhamento</td>
+                                    <td><span class="badge badge-promiss">Promissória</span></td>
+                                    <td><span class="badge badge-danger"><span class="badge-dot"></span>Pendente</span></td>
+                                    <td>13/01/2024</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>OS-004</strong></td>
+                                    <td>Ana Costa</td>
+                                    <td>VW Gol</td>
+                                    <td>Freios</td>
+                                    <td><span class="badge badge-debito">Cartão Débito</span></td>
+                                    <td><span class="badge badge-success"><span class="badge-dot"></span>Completo</span></td>
+                                    <td>12/01/2024</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CLIENTES -->
+            <div id="clientes-page" style="display: none;">
+                <div style="margin-bottom: 16px;">
+                    <button class="btn btn-primary" onclick="openModal('clienteModal')">
+                        <svg viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="5" x2="12" y2="19"/>
+                            <line x1="5" y1="12" x2="19" y2="12"/>
+                        </svg>
+                        Novo Cliente
+                    </button>
+                </div>
+
+                <div class="card">
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>Telefone</th>
+                                    <th>Email</th>
+                                    <th>Veículo</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>João Silva</strong></td>
+                                    <td>(11) 98765-4321</td>
+                                    <td>joao@email.com</td>
+                                    <td>Toyota Corolla</td>
+                                    <td style="display: flex; gap: 6px;">
+                                        <button class="btn btn-secondary btn-icon" title="Editar">
+                                            <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                            </svg>
+                                        </button>
+                                        <button class="btn btn-danger btn-icon" title="Excluir">
+                                            <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <polyline points="3 6 5 6 21 6"/>
+                                                <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                                                <path d="M10 11v6"/><path d="M14 11v6"/>
+                                                <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+                                            </svg>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Maria Santos</strong></td>
+                                    <td>(11) 99876-5432</td>
+                                    <td>maria@email.com</td>
+                                    <td>Honda Civic</td>
+                                    <td style="display: flex; gap: 6px;">
+                                        <button class="btn btn-secondary btn-icon" title="Editar">
+                                            <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                            </svg>
+                                        </button>
+                                        <button class="btn btn-danger btn-icon" title="Excluir">
+                                            <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <polyline points="3 6 5 6 21 6"/>
+                                                <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                                                <path d="M10 11v6"/><path d="M14 11v6"/>
+                                                <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+                                            </svg>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Carlos Oliveira</strong></td>
+                                    <td>(11) 97654-3210</td>
+                                    <td>carlos@email.com</td>
+                                    <td>Ford Focus</td>
+                                    <td style="display: flex; gap: 6px;">
+                                        <button class="btn btn-secondary btn-icon" title="Editar">
+                                            <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                            </svg>
+                                        </button>
+                                        <button class="btn btn-danger btn-icon" title="Excluir">
+                                            <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <polyline points="3 6 5 6 21 6"/>
+                                                <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                                                <path d="M10 11v6"/><path d="M14 11v6"/>
+                                                <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+                                            </svg>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VEICULOS -->
+            <div id="veiculos-page" style="display: none;">
+                <div style="margin-bottom: 16px;">
+                    <button class="btn btn-primary">
+                        <svg viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="5" x2="12" y2="19"/>
+                            <line x1="5" y1="12" x2="19" y2="12"/>
+                        </svg>
+                        Novo Veículo
+                    </button>
+                </div>
+
+                <div class="card">
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Placa</th>
+                                    <th>Modelo</th>
+                                    <th>Ano</th>
+                                    <th>Cliente</th>
+                                    <th>Quilometragem</th>
+                                    <th>Próx. Revisão</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>ABC-1234</strong></td>
+                                    <td>Toyota Corolla</td>
+                                    <td>2020</td>
+                                    <td>João Silva</td>
+                                    <td>45.230 km</td>
+                                    <td>10/02/2024</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>XYZ-5678</strong></td>
+                                    <td>Honda Civic</td>
+                                    <td>2019</td>
+                                    <td>Maria Santos</td>
+                                    <td>62.150 km</td>
+                                    <td>15/02/2024</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>DEF-9012</strong></td>
+                                    <td>Ford Focus</td>
+                                    <td>2021</td>
+                                    <td>Carlos Oliveira</td>
+                                    <td>32.890 km</td>
+                                    <td>01/03/2024</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ORDENS -->
+            <div id="ordens-page" style="display: none;">
+                <div style="margin-bottom: 16px;">
+                    <button class="btn btn-primary" onclick="openModal('osModal')">
+                        <svg viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="5" x2="12" y2="19"/>
+                            <line x1="5" y1="12" x2="19" y2="12"/>
+                        </svg>
+                        Nova OS
+                    </button>
+                </div>
+
+                <div class="card">
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>OS</th>
+                                    <th>Cliente</th>
+                                    <th>Serviço</th>
+                                    <th>Valor</th>
+                                    <th>Pagamento</th>
+                                    <th>Status</th>
+                                    <th>Data</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>OS-001</strong></td>
+                                    <td>João Silva</td>
+                                    <td>Revisão 10.000 km</td>
+                                    <td style="color: var(--blue); font-weight: 600;">R$ 450</td>
+                                    <td><span class="badge badge-pix">Pix</span></td>
+                                    <td><span class="badge badge-success"><span class="badge-dot"></span>Completo</span></td>
+                                    <td>15/01/2024</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>OS-002</strong></td>
+                                    <td>Maria Santos</td>
+                                    <td>Troca de óleo</td>
+                                    <td style="color: var(--blue); font-weight: 600;">R$ 120</td>
+                                    <td><span class="badge badge-credito">Cartão Crédito</span></td>
+                                    <td><span class="badge badge-pending"><span class="badge-dot"></span>Em Progresso</span></td>
+                                    <td>14/01/2024</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>OS-003</strong></td>
+                                    <td>Carlos Oliveira</td>
+                                    <td>Alinhamento 4 rodas</td>
+                                    <td style="color: var(--blue); font-weight: 600;">R$ 200</td>
+                                    <td><span class="badge badge-promiss">Promissória</span></td>
+                                    <td><span class="badge badge-danger"><span class="badge-dot"></span>Pendente</span></td>
+                                    <td>13/01/2024</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AGENDAMENTO -->
+            <div id="agendamento-page" style="display: none;">
+                <div style="margin-bottom: 16px;">
+                    <button class="btn btn-primary">
+                        <svg viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="5" x2="12" y2="19"/>
+                            <line x1="5" y1="12" x2="19" y2="12"/>
+                        </svg>
+                        Novo Agendamento
+                    </button>
+                </div>
+
+                <div class="card">
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Cliente</th>
+                                    <th>Serviço</th>
+                                    <th>Data</th>
+                                    <th>Hora</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>João Silva</strong></td>
+                                    <td>Revisão 10.000 km</td>
+                                    <td>20/01/2024</td>
+                                    <td><strong>09:00</strong></td>
+                                    <td><span class="badge badge-success"><span class="badge-dot"></span>Confirmado</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Maria Santos</strong></td>
+                                    <td>Troca de óleo</td>
+                                    <td>21/01/2024</td>
+                                    <td><strong>10:30</strong></td>
+                                    <td><span class="badge badge-success"><span class="badge-dot"></span>Confirmado</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Carlos Oliveira</strong></td>
+                                    <td>Alinhamento</td>
+                                    <td>22/01/2024</td>
+                                    <td><strong>14:00</strong></td>
+                                    <td><span class="badge badge-pending"><span class="badge-dot"></span>Pendente</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ESTOQUE -->
+            <div id="estoque-page" style="display: none;">
+                <div style="margin-bottom: 16px;">
+                    <button class="btn btn-primary">
+                        <svg viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="5" x2="12" y2="19"/>
+                            <line x1="5" y1="12" x2="19" y2="12"/>
+                        </svg>
+                        Nova Peça
+                    </button>
+                </div>
+
+                <div class="card">
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Peça</th>
+                                    <th>Código</th>
+                                    <th>Quantidade</th>
+                                    <th>Mínimo</th>
+                                    <th>Valor Unit.</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Pastilha de Freio</strong></td>
+                                    <td>PF-001</td>
+                                    <td style="font-weight: 600; color: var(--success);">24</td>
+                                    <td>10</td>
+                                    <td>R$ 45,00</td>
+                                    <td><span class="badge badge-success"><span class="badge-dot"></span>OK</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Disco de Freio</strong></td>
+                                    <td>DF-001</td>
+                                    <td style="font-weight: 600; color: var(--warning);">8</td>
+                                    <td>5</td>
+                                    <td>R$ 120,00</td>
+                                    <td><span class="badge badge-success"><span class="badge-dot"></span>OK</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Óleo Motor 5L</strong></td>
+                                    <td>OM-001</td>
+                                    <td style="font-weight: 600; color: var(--success);">15</td>
+                                    <td>10</td>
+                                    <td>R$ 65,00</td>
+                                    <td><span class="badge badge-success"><span class="badge-dot"></span>OK</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Filtro de Óleo</strong></td>
+                                    <td>FO-001</td>
+                                    <td style="font-weight: 600; color: var(--danger);">3</td>
+                                    <td>5</td>
+                                    <td>R$ 28,00</td>
+                                    <td><span class="badge badge-danger"><span class="badge-dot"></span>Baixo</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div><!-- end page-content -->
+    </main>
+</div>
+
+<!-- MODAL -->
+<div id="clienteModal" class="modal-overlay" style="display: none;" onclick="this.style.display='none'">
+    <div class="modal" onclick="event.stopPropagation()">
+        <h2>Novo Cliente</h2>
+        <form>
+            <div class="form-group">
+                <label>Nome Completo</label>
+                <input type="text" placeholder="Ex: João Silva" required>
+            </div>
+            <div class="form-group">
+                <label>Telefone</label>
+                <input type="tel" placeholder="(11) 98765-4321" required>
+            </div>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" placeholder="joao@email.com" required>
+            </div>
+            <div class="form-group">
+                <label>Veículo Principal</label>
+                <input type="text" placeholder="Ex: Toyota Corolla 2020">
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button type="submit" class="btn btn-primary" style="flex: 1;">Criar Cliente</button>
+                <button type="button" class="btn btn-secondary" style="flex: 1;" onclick="document.getElementById('clienteModal').style.display='none'">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- MODAL NOVA OS -->
+<div id="osModal" class="modal-overlay" style="display: none;" onclick="this.style.display='none'">
+    <div class="modal" onclick="event.stopPropagation()">
+        <h2>Nova Ordem de Serviço</h2>
+        <form>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0 14px;">
+                <div class="form-group">
+                    <label>Cliente</label>
+                    <input type="text" placeholder="Ex: João Silva" required>
+                </div>
+                <div class="form-group">
+                    <label>Veículo</label>
+                    <input type="text" placeholder="Ex: Toyota Corolla">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Serviço</label>
+                <input type="text" placeholder="Ex: Revisão 10.000 km" required>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0 14px;">
+                <div class="form-group">
+                    <label>Valor (R$)</label>
+                    <input type="number" placeholder="0,00" min="0" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label>Data</label>
+                    <input type="date">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Forma de Pagamento</label>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 2px;">
+                    <label class="pagamento-opcao" style="display: flex; align-items: center; gap: 10px; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; font-weight: 500; font-size: 14px;">
+                        <input type="radio" name="pagamento" value="pix" style="accent-color: var(--blue);" required>
+                        <span style="color: #059669; font-weight: 600;">Pix</span>
+                    </label>
+                    <label class="pagamento-opcao" style="display: flex; align-items: center; gap: 10px; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; font-weight: 500; font-size: 14px;">
+                        <input type="radio" name="pagamento" value="credito" style="accent-color: var(--blue);">
+                        <span style="color: #1d4ed8; font-weight: 600;">Cartão Crédito</span>
+                    </label>
+                    <label class="pagamento-opcao" style="display: flex; align-items: center; gap: 10px; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; font-weight: 500; font-size: 14px;">
+                        <input type="radio" name="pagamento" value="debito" style="accent-color: var(--blue);">
+                        <span style="color: #475569; font-weight: 600;">Cartão Débito</span>
+                    </label>
+                    <label class="pagamento-opcao" style="display: flex; align-items: center; gap: 10px; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; font-weight: 500; font-size: 14px;">
+                        <input type="radio" name="pagamento" value="promissoria" style="accent-color: var(--blue);">
+                        <span style="color: #c2410c; font-weight: 600;">Promissória</span>
+                    </label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Status</label>
+                <select>
+                    <option value="pendente">Pendente</option>
+                    <option value="progresso">Em Progresso</option>
+                    <option value="completo">Completo</option>
+                </select>
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button type="submit" class="btn btn-primary" style="flex: 1;">Criar OS</button>
+                <button type="button" class="btn btn-secondary" style="flex: 1;" onclick="document.getElementById('osModal').style.display='none'">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function showPage(pageName, btn) {
+        document.querySelectorAll('[id$="-page"]').forEach(p => p.style.display = 'none');
+        const page = document.getElementById(pageName + '-page');
+        if (page) page.style.display = 'block';
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+        const titles = {
+            dashboard:   'Dashboard',
+            clientes:    'Clientes',
+            veiculos:    'Veículos',
+            ordens:      'Ordens de Serviço',
+            agendamento: 'Agendamento',
+            estoque:     'Estoque'
+        };
+        document.getElementById('pageTitle').textContent = titles[pageName] || 'Dashboard';
+    }
+
+    function openModal(modalId) {
+        document.getElementById(modalId).style.display = 'flex';
+    }
+</script>
+</body>
+</html>
