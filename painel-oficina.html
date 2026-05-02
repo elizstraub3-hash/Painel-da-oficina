@@ -255,6 +255,29 @@
         .stat-icon.blue  { background: var(--blue-pale); color: var(--blue-text); }
         .stat-icon.gray  { background: #e5e7eb; color: #374151; }
 
+        /* ========== PAGAMENTO ========== */
+        .badge-pix     { background: #ecfdf5; color: #059669; }
+        .badge-credito { background: #eff6ff; color: #1d4ed8; }
+        .badge-debito  { background: #f1f5f9; color: #475569; }
+        .badge-promiss { background: #fff7ed; color: #c2410c; }
+
+        .pagamento-select {
+            padding: 6px 10px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 13px;
+            font-family: inherit;
+            color: var(--text);
+            background: var(--white);
+            cursor: pointer;
+        }
+
+        .pagamento-select:focus {
+            outline: none;
+            border-color: var(--blue);
+            box-shadow: 0 0 0 3px rgba(26, 86, 219, 0.1);
+        }
+
         /* ========== ALERT ========== */
         .alert {
             padding: 13px 16px;
@@ -675,6 +698,7 @@
                                     <th>Cliente</th>
                                     <th>Veículo</th>
                                     <th>Serviço</th>
+                                    <th>Pagamento</th>
                                     <th>Status</th>
                                     <th>Data</th>
                                 </tr>
@@ -685,6 +709,7 @@
                                     <td>João Silva</td>
                                     <td>Toyota Corolla</td>
                                     <td>Revisão 10.000 km</td>
+                                    <td><span class="badge badge-pix">Pix</span></td>
                                     <td><span class="badge badge-success"><span class="badge-dot"></span>Completo</span></td>
                                     <td>15/01/2024</td>
                                 </tr>
@@ -693,6 +718,7 @@
                                     <td>Maria Santos</td>
                                     <td>Honda Civic</td>
                                     <td>Troca de óleo</td>
+                                    <td><span class="badge badge-credito">Cartão Crédito</span></td>
                                     <td><span class="badge badge-pending"><span class="badge-dot"></span>Em Progresso</span></td>
                                     <td>14/01/2024</td>
                                 </tr>
@@ -701,6 +727,7 @@
                                     <td>Carlos Oliveira</td>
                                     <td>Ford Focus</td>
                                     <td>Alinhamento</td>
+                                    <td><span class="badge badge-promiss">Promissória</span></td>
                                     <td><span class="badge badge-danger"><span class="badge-dot"></span>Pendente</span></td>
                                     <td>13/01/2024</td>
                                 </tr>
@@ -709,6 +736,7 @@
                                     <td>Ana Costa</td>
                                     <td>VW Gol</td>
                                     <td>Freios</td>
+                                    <td><span class="badge badge-debito">Cartão Débito</span></td>
                                     <td><span class="badge badge-success"><span class="badge-dot"></span>Completo</span></td>
                                     <td>12/01/2024</td>
                                 </tr>
@@ -874,7 +902,7 @@
             <!-- ORDENS -->
             <div id="ordens-page" style="display: none;">
                 <div style="margin-bottom: 16px;">
-                    <button class="btn btn-primary">
+                    <button class="btn btn-primary" onclick="openModal('osModal')">
                         <svg viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                             <line x1="12" y1="5" x2="12" y2="19"/>
                             <line x1="5" y1="12" x2="19" y2="12"/>
@@ -892,6 +920,7 @@
                                     <th>Cliente</th>
                                     <th>Serviço</th>
                                     <th>Valor</th>
+                                    <th>Pagamento</th>
                                     <th>Status</th>
                                     <th>Data</th>
                                 </tr>
@@ -902,6 +931,7 @@
                                     <td>João Silva</td>
                                     <td>Revisão 10.000 km</td>
                                     <td style="color: var(--blue); font-weight: 600;">R$ 450</td>
+                                    <td><span class="badge badge-pix">Pix</span></td>
                                     <td><span class="badge badge-success"><span class="badge-dot"></span>Completo</span></td>
                                     <td>15/01/2024</td>
                                 </tr>
@@ -910,6 +940,7 @@
                                     <td>Maria Santos</td>
                                     <td>Troca de óleo</td>
                                     <td style="color: var(--blue); font-weight: 600;">R$ 120</td>
+                                    <td><span class="badge badge-credito">Cartão Crédito</span></td>
                                     <td><span class="badge badge-pending"><span class="badge-dot"></span>Em Progresso</span></td>
                                     <td>14/01/2024</td>
                                 </tr>
@@ -918,6 +949,7 @@
                                     <td>Carlos Oliveira</td>
                                     <td>Alinhamento 4 rodas</td>
                                     <td style="color: var(--blue); font-weight: 600;">R$ 200</td>
+                                    <td><span class="badge badge-promiss">Promissória</span></td>
                                     <td><span class="badge badge-danger"><span class="badge-dot"></span>Pendente</span></td>
                                     <td>13/01/2024</td>
                                 </tr>
@@ -1071,6 +1103,72 @@
             <div style="display: flex; gap: 10px; margin-top: 20px;">
                 <button type="submit" class="btn btn-primary" style="flex: 1;">Criar Cliente</button>
                 <button type="button" class="btn btn-secondary" style="flex: 1;" onclick="document.getElementById('clienteModal').style.display='none'">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- MODAL NOVA OS -->
+<div id="osModal" class="modal-overlay" style="display: none;" onclick="this.style.display='none'">
+    <div class="modal" onclick="event.stopPropagation()">
+        <h2>Nova Ordem de Serviço</h2>
+        <form>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0 14px;">
+                <div class="form-group">
+                    <label>Cliente</label>
+                    <input type="text" placeholder="Ex: João Silva" required>
+                </div>
+                <div class="form-group">
+                    <label>Veículo</label>
+                    <input type="text" placeholder="Ex: Toyota Corolla">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Serviço</label>
+                <input type="text" placeholder="Ex: Revisão 10.000 km" required>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0 14px;">
+                <div class="form-group">
+                    <label>Valor (R$)</label>
+                    <input type="number" placeholder="0,00" min="0" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label>Data</label>
+                    <input type="date">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Forma de Pagamento</label>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 2px;">
+                    <label class="pagamento-opcao" style="display: flex; align-items: center; gap: 10px; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; font-weight: 500; font-size: 14px;">
+                        <input type="radio" name="pagamento" value="pix" style="accent-color: var(--blue);" required>
+                        <span style="color: #059669; font-weight: 600;">Pix</span>
+                    </label>
+                    <label class="pagamento-opcao" style="display: flex; align-items: center; gap: 10px; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; font-weight: 500; font-size: 14px;">
+                        <input type="radio" name="pagamento" value="credito" style="accent-color: var(--blue);">
+                        <span style="color: #1d4ed8; font-weight: 600;">Cartão Crédito</span>
+                    </label>
+                    <label class="pagamento-opcao" style="display: flex; align-items: center; gap: 10px; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; font-weight: 500; font-size: 14px;">
+                        <input type="radio" name="pagamento" value="debito" style="accent-color: var(--blue);">
+                        <span style="color: #475569; font-weight: 600;">Cartão Débito</span>
+                    </label>
+                    <label class="pagamento-opcao" style="display: flex; align-items: center; gap: 10px; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; font-weight: 500; font-size: 14px;">
+                        <input type="radio" name="pagamento" value="promissoria" style="accent-color: var(--blue);">
+                        <span style="color: #c2410c; font-weight: 600;">Promissória</span>
+                    </label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Status</label>
+                <select>
+                    <option value="pendente">Pendente</option>
+                    <option value="progresso">Em Progresso</option>
+                    <option value="completo">Completo</option>
+                </select>
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button type="submit" class="btn btn-primary" style="flex: 1;">Criar OS</button>
+                <button type="button" class="btn btn-secondary" style="flex: 1;" onclick="document.getElementById('osModal').style.display='none'">Cancelar</button>
             </div>
         </form>
     </div>
